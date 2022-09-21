@@ -28,15 +28,20 @@ from bs4 import BeautifulSoup
 import win32com.client as wincl
 from urllib.request import urlopen
 from translate import Translator
+import language_tool_python
 
+# we are making a engine to recognise the speech and convert to text and then it will be
+# stored in a variable named as query.
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
-engine.setProperty('voice', voices[0].id)
+engine.setProperty('voice', voices[1].id)
 
+# defining a source and making it to speak using engine.
 def speak(audio):
     engine.say(audio)
     engine.runAndWait()
  
+# defining a function to make our assistant wish us when we run the program.
 def wishMe():
     hour = int(datetime.datetime.now().hour)
     if hour>= 0 and hour<12:
@@ -48,10 +53,15 @@ def wishMe():
     else:
         speak("Good Evening Sir !") 
     speak("I am your Assistant, Browzio!")
-     
- 
+
+def getCityName(query_string):
+    words = query_string.split(" ")
+    for word in range(0,len(words)):
+        if words[word] == 'in' or words[word] == 'at':
+            return words[word+1]     
+
 def username():
-     speak("How can i Help you, Sir")
+     speak("How can i Help you Sir?")
  
 def takeCommand():
      
@@ -100,7 +110,7 @@ if __name__ == '__main__':
          
         # All the commands said by user will be
         # stored here in 'query' and will be
-        # converted to lower case for easily
+        # converted to lower case for easy
         # recognition of command
         if 'wikipedia' in query:
             speak('Searching Wikipedia...')
@@ -125,18 +135,17 @@ if __name__ == '__main__':
         elif 'play music' in query or "play song" in query:
             speak("Here you go with music")
             # music_dir = "G:\\Song"
-            music_dir = "C:\\Users\\GAURAV\\Music"
+            music_dir = "D:\Personal folder\music"
             songs = os.listdir(music_dir)
             print(songs)   
-            random = os.startfile(os.path.join(music_dir, songs[1]))
- 
+            random = os.startfile(os.path.join(music_dir, random.choice(songs)))
+
+        elif "stop music" in query:
+            subprocess.Popen(["taskkill","/IM","Music.UI.exe","/F"],shell=True)
+
         elif 'the time' in query:
             strTime = datetime.datetime.now().strftime("%H:%M:%S")   
             speak("Sir, the time is "+ strTime)
- 
-        elif 'open opera' in query:
-            codePath = r"C:\\Users\\GAURAV\\AppData\\Local\\Programs\\Opera\\launcher.exe"
-            os.startfile(codePath)
  
         elif 'email' in query:
             try:
@@ -160,7 +169,7 @@ if __name__ == '__main__':
             except Exception as e:
                 print(e)
                 speak("I am not able to send this email")
- 
+            #general Questions:
         elif 'how are you' in query:
             speak("I am fine, Thank you")
             speak("How are you, Sir")
@@ -177,17 +186,17 @@ if __name__ == '__main__':
             assname = takeCommand()
             speak("Thanks for naming me")
  
-        elif "what's your name" in query or "What is your name" in query:
-            speak("My friends call me")
-            speak("Bhaavna")
-            print("My friends call me Bhaavna")
+        elif "what is your name" in query or "What is your name" in query:
+            speak("My friends call me ")
+            speak("Browzio")
+            print("My friends call me Browzio.")
  
-        elif 'exit' in query or 'quit' in query or 'Quit' in query:
-            speak("Thanks for giving me your time")
+        elif 'exit' in query or 'bye' in query or 'goodbye' in query.lower():
+            speak("Good Bye! See you later.")
             exit()
  
         elif "who made you" in query or "who created you" in query:
-            speak("I have been created by Python.")
+            speak("I have been created by Python. Students from VIT-B created me I don't know the names but I am thankful to them.")
              
         elif 'joke' in query:
             speak(pyjokes.get_joke())
@@ -199,8 +208,9 @@ if __name__ == '__main__':
             for i in range(len(k)):
                 sum += int(k[i])
                 print(sum)
+                speak(sum)
  
-        elif 'search' in query or 'play' in query:
+        elif 'search' in query:
              
             query = query.replace("search", "")
             query = query.replace("play", "")         
@@ -212,35 +222,29 @@ if __name__ == '__main__':
         elif "why you came to world" in query:
             speak("Humans made me. I don't know.")
  
-        elif 'power point presentation' in query:
+        elif 'powerpoint presentation' in query.lower() or 'ppt' in query.lower():
             speak("opening Power Point presentation")
-            power = r"C:\\Users\\GAURAV\\Desktop\\Minor Project\\Presentation\\Voice Assistant.pptx"
+            power = r"C:\\Users\\Voice Assistant.pptx"
             os.startfile(power)
  
-        elif 'is love' in query:
+        elif 'what is love' in query:
             speak("It is 7th sense that destroy all other senses")
  
         elif "who are you" in query:
-            speak("I am your virtual assistant created by Gaurav")
+            speak("I am your virtual assistant, Browzio")
  
         elif 'reason for you' in query:
             speak("I was created as a Minor project using")
  
         elif 'change background' in query:
-            ctypes.windll.user32.SystemParametersInfoW(20,
-                                                       0,
-                                                       "Location of wallpaper",
-                                                       0)
+            ctypes.windll.user32.SystemParametersInfoW(20,0,"Location of wallpaper",0)
             speak("Background changed successfully")
- 
-        elif 'open bluestack' in query:
-            appli = r"C:\\ProgramData\\BlueStacks\\Client\\Bluestacks.exe"
-            os.startfile(appli)
+
  
         elif 'news' in query:
              
             try:
-                jsonObj = urlopen('''https://newsapi.org / v1 / articles?source = the-times-of-india&sortBy = top&apiKey =\\times of India Api key\\''')
+                jsonObj = urlopen('''https://newsapi.org/v1/articles?source=the-times-of-india&sortBy=top&apiKey=f856176bfd8d4cea93d45c77cf18ba82''')
                 data = json.load(jsonObj)
                 i = 1
                  
@@ -308,10 +312,10 @@ if __name__ == '__main__':
             time.sleep(5)
             subprocess.call(["shutdown", "/l"])
  
-        elif "write a note" in query:
+        elif "write a note" in query or "take a note" in query:
             speak("What should i write, sir")
             note = takeCommand()
-            file = open('jarvis.txt', 'w')
+            file = open('Browzio.txt', 'w')
             speak("Sir, Should i include date and time")
             snfm = takeCommand()
             if 'yes' in snfm or 'sure' in snfm:
@@ -348,18 +352,21 @@ if __name__ == '__main__':
             wishMe()
             speak("Browzio! in your service Mister")
             speak(username)
- 
+
         elif 'weather' in query or 'temperature' in query:
-            query = query.replace("what is the weather ", "")
+            # query = query.replace("how is the weather ", "")
+            query = getCityName(query)
+
             location = query
             speak("You asked for weather " + location)
             url = "https://google.com/search?q=weather+in+" + location
             request_result = requests.get( url )
             soup = bs4.BeautifulSoup( request_result.text , "html.parser" )
             temp = soup.find( "div" , class_='BNeawe' ).text
-            x= ('Temperature '+location +' is  ' + temp)
+            x= ('Temperature in '+location +' is  ' + temp)
             print(x)
-            speak(x)             
+            speak(x)
+            
         elif "send message " in query:
                 # You need to create an account on Twilio to use this service
                 account_sid = 'Account Sid key'
@@ -367,12 +374,7 @@ if __name__ == '__main__':
                 client = Client(account_sid, auth_token)
  
                 message = client.messages \
-                                .create(
-                                    body = takeCommand(),
-                                    from_='Sender No',
-                                    to ='Receiver No'
-                                )
- 
+                    .create(body = takeCommand(),from_='Sender No',to ='Receiver No')
                 print(message.sid)
  
         elif "wikipedia" in query:
@@ -382,8 +384,61 @@ if __name__ == '__main__':
             speak("A warm" +query)
             speak("How are you Mister")
             speak("AK")
- 
-        # most asked question from google Assistant
+
+##############Translate from some language to some other.############################
+        
+        elif "Translate" in query or "translate" in query:
+            #speak("In which language should I translate?")
+            lang=query.split("to") [1]
+            print(lang)
+            #lang=input("Say your language:")
+            if "english" in query:
+                speak("what should I translate?")
+                Translator=Translator(to_lang="english")
+                sentence=takeCommand().lower()
+                translation=Translator.translate(sentence)
+                print(translation)
+                speak(translation)
+            elif "hindi" in query:
+                speak("what should I translate?")
+                Translator=Translator(to_lang="hindi")
+                sentence=takeCommand().lower()
+                translation=Translator.translate(sentence)
+                print(translation)
+                speak(translation)
+            elif "marathi" in query:
+                speak("what should I translate?")
+                Translator=Translator(to_lang="marathi")
+                sentence=takeCommand().lower()
+                translation=Translator.translate(sentence)
+                print(translation)
+                speak(translation)
+            elif "spanish" in query:
+                speak("what should I translate?")
+                Translator=Translator(to_lang="spanish")
+                sentence=takeCommand().lower()
+                translation=Translator.translate(sentence)
+                print(translation)
+                speak(translation)
+            elif "german" in query:
+                speak("what should I translate?")
+                Translator=Translator(to_lang="german")
+                sentence=takeCommand().lower()
+                translation=Translator.translate(sentence)
+                print(translation)
+                speak(translation)
+            elif "french" in query:
+                speak("what should I translate?")
+                Translator=Translator(to_lang="french")
+                sentence=takeCommand().lower()
+                translation=Translator.translate(sentence)
+                print(translation)
+                speak(translation)
+            else:
+                pass
+        
+#################################################################################### 
+        # most asked question from Google Assistant
         elif "will you be my gf" in query or "will you be my bf" in query:  
             speak("I'm not sure about, may be you should give me some time")
  
